@@ -27,6 +27,11 @@ class SweptSurface{
         this.lid = lid;
         this.scale = scale;
         this.levelsDelta = levelsDelta;
+        this.formPointsList = this.form.getPoints(this.points);
+        this.formTangentsList = this.form.getTangents(this.points);
+        this.pathPointsList = null;
+        this.pathTangentsList = null;
+        
         this.calculateLevelMatrix();
         this.generateSurface();
     }
@@ -34,33 +39,53 @@ class SweptSurface{
     calculateLevelMatrix(){
         var levelsD = this.levelsDelta;
 
-        if (!levelsD){
-            levelsD = [];
-            for (let u = 0; u <= 1; u += 1/(this.levels - 1)){
-                levelsD.push(u);
+        if (!this.levelsDelta){
+            this.pathPointsList = this.path.getPoints(this.levels);
+            this.pathTangentsList = this.path.getTangents(this.levels);
+            let pathNormalsList = this.path.getNormals(this.levels);
+            
+            for (let i = 0; i < this.pathPointsList.length; i++){
+                let pos = this.pathPointsList[i];
+                let norm = pathNormalsList[i];
+                let tang = this.pathTangentsList[i];
+                var binorm = vec3.create();
+                vec3.cross(binorm, norm, tang);
+                vec3.normalize(binorm, binorm);
+                var m = mat4.fromValues(norm[0],    norm[1],    norm[2],    0,
+                                        binorm[0],  binorm[1],  binorm[2],  0,
+                                        tang[0],    tang[1],    tang[2],    0,
+                                        pos[0],     pos[1],     pos[2],     1);
+                this.matrixPath.push(m);
             }
         }
-
-        for (let i = 0; i < levelsD.length; i++){ 
-            let u = levelsD[i];
-            let tang = this.path.getTangent(u);
-            let norm = this.path.getNormal(u);
-            let pos = this.path.getPoint(u);
-            var binorm = vec3.create();
-            vec3.cross(binorm, norm, tang);
-            var m = mat4.fromValues(norm[0],    norm[1],    norm[2],    0,
-                                    binorm[0],  binorm[1],  binorm[2],  0,
-                                    tang[0],    tang[1],    tang[2],    0,
-                                    pos[0],     pos[1],     pos[2],     1);
-            this.matrixPath.push(m);
+        else{
+            this.pathPointsList = [];
+            this.pathTangentsList = [];
+            for (let i = 0; i < this.levelsDelta.length; i++){ 
+                let u = this.levelsDelta[i];
+                let tang = this.path.getTangent(u);
+                let norm = this.path.getNormal(u);
+                let pos = this.path.getPoint(u);
+                this.pathPointsList.push(pos);
+                this.pathTangentsList.push(tang);
+                var binorm = vec3.create();
+                vec3.cross(binorm, norm, tang);
+                vec3.normalize(binorm, binorm);
+                var m = mat4.fromValues(norm[0],    norm[1],    norm[2],    0,
+                                        binorm[0],  binorm[1],  binorm[2],  0,
+                                        tang[0],    tang[1],    tang[2],    0,
+                                        pos[0],     pos[1],     pos[2],     1);
+                this.matrixPath.push(m);
+            }
         }
     }
 
     generateSurface(){
         if (this.lid) {
-            for (let i=0; i <= this.points; i++){
+            for (let i = 0; i < this.formPointsList.length; i++){
                 let u = i/this.points;
-                let pos = this.form.getPoint(u);
+                let pos = vec3.create();
+                vec3.copy(pos, this.formPointsList[i]);
                 vec4.scale(pos, pos, 0);
                 pos = vec4.fromValues(...pos, 1);
                 vec4.transformMat4(pos, pos, this.matrixPath[0]);
@@ -69,7 +94,8 @@ class SweptSurface{
                 this.positionBuffer.push(pos[1]);
                 this.positionBuffer.push(pos[2]);
 
-                var nrm = this.path.getTangent(0);
+                let nrm = vec3.create();
+                vec3.copy(nrm, this.pathTangentsList[0]);
                 vec3.scale(nrm, nrm, -1);
 
                 this.normalBuffer.push(nrm[0]);
@@ -83,11 +109,12 @@ class SweptSurface{
             }
         }
 
-        for (var i=0; i < this.levels; i++){
+        for (let i = 0; i < this.pathPointsList.length; i++){
             let t = i/this.levels;
-            for (var j=0; j <= this.points; j++){
+            for (let j = 0; j < this.formPointsList.length; j++){
                 let u = j/this.points;
-                let pos = this.form.getPoint(u);
+                let pos = vec3.create();
+                vec3.copy(pos, this.formPointsList[j]);
                 if (this.scale){
                     vec3.scale(pos, pos, this.scale[i]);
                 }
@@ -99,8 +126,8 @@ class SweptSurface{
                 this.positionBuffer.push(pos[2]);
 
                 var nrm = vec3.create();
-                var tang1 = this.form.getTangent(u);
-                var tang2 = this.path.getTangent(t);
+                var tang1 = this.formTangentsList[j];
+                var tang2 = this.pathTangentsList[i];
                 vec3.cross(nrm, tang1, tang2);
 
                 this.normalBuffer.push(nrm[0]);
@@ -115,9 +142,10 @@ class SweptSurface{
     }
 
         if (this.lid) {
-            for (let i=0; i <= this.points; i++){
+            for (let i=0; i < this.formPointsList.length; i++){
                 let u = i / this.points;
-                let pos = this.form.getPoint(u);
+                let pos = vec3.create();
+                vec3.copy(pos, this.formPointsList[i]);
                 vec4.scale(pos, pos, 0);
                 pos = vec4.fromValues(...pos, 1);
                 vec4.transformMat4(pos, pos, this.matrixPath[this.matrixPath.length - 1]);
@@ -125,8 +153,9 @@ class SweptSurface{
                 this.positionBuffer.push(pos[0]);
                 this.positionBuffer.push(pos[1]);
                 this.positionBuffer.push(pos[2]);
-
-                var nrm = this.path.getTangent(1);
+                
+                let nrm = vec3.create();
+                vec3.copy(nrm, this.pathTangentsList[this.pathTangentsList.length - 1]);
 
                 this.normalBuffer.push(nrm[0]);
                 this.normalBuffer.push(nrm[1]);
@@ -139,7 +168,7 @@ class SweptSurface{
             }
         }
 
-        let points = this.points + 1;
+        let points = this.formPointsList.length;
         function getIndex(n, p){return n * points + p;}
 
         for (var n = 0; n < (this.positionBuffer.length / (points * 3)) - 1; n++) {
@@ -150,7 +179,5 @@ class SweptSurface{
             this.indexBuffer.push(getIndex(n + 1, points - 1, points));
             this.indexBuffer.push(getIndex(n + 1, 0, points));
         }
-        console.log(this.indexBuffer);
-        //this.indexBuffer = [0, 6, 1, 7, 2, 8, 3, 9, 4, 10, 5, 11, 11, 6, 6, 12, 7, 13, 8, 14, 9, 15, 10, 16, 11, 17, 12, 18, 17, 12];
     }
 }

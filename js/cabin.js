@@ -6,6 +6,6 @@ class Cabin extends Objeto3D{
         let recorridoCabina = new Forma();
         recorridoCabina.load2DSvgString("M 0 4 C 0 2 0 -2 0 -4", [0,1,0]);
         let superficieCabina = new SweptSurface(formaCabina, recorridoCabina, 100, 7, true, [0.8,1,1.1,1.15,1.1,1,0.8], [0,0.05,0.3,0.5,0.7,0.95,1]);
-        this.setGeometria(superficieCabina.positionBuffer, superficieCabina.indexBuffer, superficieCabina.normalBuffer);
+        this.setGeometry(superficieCabina.positionBuffer, superficieCabina.indexBuffer, superficieCabina.normalBuffer);
     }
 }

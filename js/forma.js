@@ -22,13 +22,15 @@ class Forma{
                 var p3 = this.create2DPoint(parseFloat(commands[i+3]), parseFloat(commands[i+4]), nAxis);
                 var p4 = this.create2DPoint(parseFloat(commands[i+5]), parseFloat(commands[i+6]), nAxis);
                 if (this.colineares(p1,p2,p3,p4))
-                    this.curvas.push(new Recta(p1, p4));
+                    this.curvas.push(new Recta(p1, p4, nAxis));
                 else
-                    this.curvas.push(new CurvaBezier(p1, p2, p3, p4));
+                    this.curvas.push(new CurvaBezier(p1, p2, p3, p4, nAxis));
                 i += 1;
             }
             else if (commands[i] == 'L'){
-
+                var p2 = this.create2DPoint(parseFloat(commands[i+1]), parseFloat(commands[i+2]), nAxis);
+                this.curvas.push(new Recta(p1, p2, nAxis));
+                i += 1;
             }
             else{
                 p1 = this.create2DPoint(parseFloat(commands[i]), parseFloat(commands[i+1]), nAxis);
@@ -65,7 +67,6 @@ class Forma{
         }
     }
 
-    // CAMBIAR:
     getPoint(u){
         u = u * this.curvas.length;
         if (u == this.curvas.length)
@@ -94,6 +95,33 @@ class Forma{
             puntos = puntos.concat(this.curvas[i].obtenerPuntos(nPuntos));
         }
         return puntos;
+    }
+
+    getPoints(n){
+        let points = [];
+        let pointsPerCurve = Math.round(n / this.curvas.length);
+        for (var i = 0; i < this.curvas.length; i++){
+            points = points.concat(this.curvas[i].getPoints(pointsPerCurve));
+        }
+        return points;
+    }
+
+    getTangents(n){
+        let tangents = [];
+        let tangentsPerCurve = Math.round(n / this.curvas.length);
+        for (var i = 0; i < this.curvas.length; i++){
+            tangents = tangents.concat(this.curvas[i].getTangents(tangentsPerCurve));
+        }
+        return tangents;
+    }
+
+    getNormals(n){
+        let normals = [];
+        let normalsPerCurve = Math.round(n / this.curvas.length);
+        for (var i = 0; i < this.curvas.length; i++){
+            normals = normals.concat(this.curvas[i].getNormals(normalsPerCurve));
+        }
+        return normals;
     }
 
     obtenerMatricesNivel(n){
