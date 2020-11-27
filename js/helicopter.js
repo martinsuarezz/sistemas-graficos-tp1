@@ -39,7 +39,7 @@ class Helicopter extends Objeto3D{
     tick(time){
         this.controller.tick();
         this.setPosition(...this.controller.getHelicopterPosition());
-        this.setRotationAngles(...this.controller.getHelicopterRotation());
+        //this.setRotationAngles(...this.controller.getHelicopterRotation());
     }
 
 }

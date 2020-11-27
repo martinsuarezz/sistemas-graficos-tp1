@@ -63,7 +63,7 @@ function setupWebGL(){
 
     // Matrix de Proyeccion Perspectiva
 
-    mat4.perspective(projMatrix,45, canvas.width / canvas.height, 0.1, 100.0);
+    mat4.perspective(projMatrix, 45, canvas.width / canvas.height, 0.1, null);
     
     mat4.identity(modelMatrix);
     mat4.rotate(modelMatrix,modelMatrix, -1.57078, [1.0, 0.0, 0.0]);
@@ -132,7 +132,7 @@ function createObjects(){
     helicopter = new Helicopter();
     camera = new CameraController2(helicopter);
     terrain = new Terrain(100, 200, 200);
-    terrain.initTexture("img/heightmap.png");
+    terrain.initTexture("img/heightmap3.png");
     terrain.initBuffers();
 }
 
@@ -195,7 +195,21 @@ function animate(){
     let normal = camera.getNormal();
     //console.log(normal);
     //console.log(cameraPosition);
+    /*
+    let posTarget = [0, 0, 0, 1];
+    let heliMatrix = helicopter.getModelMatrix();
+    vec4.transformMat4(posTarget, posTarget, heliMatrix);
+    let matrizTranslation = mat4.fromValues(1, 0, 0, 0,
+                                            0, 1, 0, 0,
+                                            0, 0, 1, 0,
+                                            0, 0, 20, 1);
+    
+    let posCamera = [0, 0, 0, 1];
+    mat4.multiply(matrizTranslation, heliMatrix, matrizTranslation);
+    vec4.transformMat4(posCamera, posCamera, matrizTranslation);
+    */
     mat4.lookAt(viewMatrix, cameraPosition, cameraTarget, normal);
+    
     
     mat4.identity(modelMatrix);
     //mat4.rotate(modelMatrix,modelMatrix, rotate_angle, [1.0, 0.0, 1.0]);
@@ -204,7 +218,6 @@ function animate(){
     mat4.multiply(normalMatrix, viewMatrix, modelMatrix);
     mat4.invert(normalMatrix, normalMatrix);
     mat4.transpose(normalMatrix, normalMatrix);
-
 }
 
 function tick(){
