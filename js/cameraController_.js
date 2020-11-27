@@ -21,25 +21,25 @@ class CameraController2{
 
         this.target = targetObject;
 
-        this.rearCamera = new Camera(false);
+        this.rearCamera = new Camera(true);
         this.rearCamera.setPosition(-20, 20, 0);
 
-        this.rearCamera2 = new Camera(false);
+        this.rearCamera2 = new Camera(true);
         this.rearCamera2.setPosition(-20, 23, 0);
 
-        this.lateralCamera = new Camera(false);
+        this.lateralCamera = new Camera(true);
         this.lateralCamera.setPosition(0, 0, 22);
 
-        this.lateralCamera2 = new Camera(false);
+        this.lateralCamera2 = new Camera(true);
         this.lateralCamera2.setPosition(0, 3, 22);
 
-        this.frontCamera = new Camera(false);
+        this.frontCamera = new Camera(true);
         this.frontCamera.setPosition(11, 0, 0);
 
-        this.frontCamera2 = new Camera(false);
+        this.frontCamera2 = new Camera(true);
         this.frontCamera2.setPosition(11, 3, 0);
 
-        this.frontCamera3 = new Camera(false);
+        this.frontCamera3 = new Camera(true);
         this.frontCamera3.setPosition(14, 0, 0);
         
         this.target.addChild(this.rearCamera);
