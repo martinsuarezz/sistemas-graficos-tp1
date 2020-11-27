@@ -25,8 +25,8 @@ var rotate_angle = -1.57078;
 
 //var cabin = new Cabin();
 //var bar = new Cylinder();
-var skid1, cabin, helicopter, aux;
-var controller = new Controller();
+var skid1, cabin, helicopter, aux, camera;
+//var controller = new Controller();
 
 function initWebGL(){
 
@@ -127,10 +127,11 @@ function makeShader(src, type){
 
 function createObjects(){
     skid1 = new SkidLowerPart();
-    aux = new Blade();
+    aux = new Arm();
     cabin = new Cabin();
     helicopter = new Helicopter();
-    terrain = new Terrain(50, 200, 200);
+    camera = new CameraController2(helicopter);
+    terrain = new Terrain(100, 200, 200);
     terrain.initTexture("img/heightmap.png");
     terrain.initBuffers();
 }
@@ -163,47 +164,52 @@ function setupVertexShaderMatrix(){
 }                  
 
 function drawScene(){
-    var position = controller.getHelicopterPosition();
-    var rotation = controller.getHelicopterRotation();
+    //var position = controller.getHelicopterPosition();
+    //var rotation = controller.getHelicopterRotation();
 
     setupVertexShaderMatrix();
     //aux.draw();
     
     helicopter.setScale(0.3);
-    helicopter.setRotation(...rotation);
-    helicopter.setPosition(...position);
+    //helicopter.setRotorSpeed(controller.getHelicopterSpeed());
+    //helicopter.setRotationAngles(...rotation);
+    //helicopter.setPosition(...position);
 
-    helicopter.draw();
+    //helicopter.draw();
+    
     /*
     cabin.dibujar();
     
     skid1.setEscala(0.3);
     skid1.dibujar();
     */
-    //helicopter.draw();
+    helicopter.draw();
     
-    //terrain.draw();
+    terrain.draw();
 }
 
 function animate(){
     rotate_angle += 0.01;
-    let cameraPosition = controller.getCameraPosition();
-    let cameraTarget = controller.getCameraTarget();
-    mat4.lookAt(viewMatrix, cameraPosition, cameraTarget, [0, 1, 0]);
+    let cameraPosition = camera.getPosition();
+    let cameraTarget = camera.getTarget();
+    let normal = camera.getNormal();
+    //console.log(normal);
+    //console.log(cameraPosition);
+    mat4.lookAt(viewMatrix, cameraPosition, cameraTarget, normal);
     
     mat4.identity(modelMatrix);
     //mat4.rotate(modelMatrix,modelMatrix, rotate_angle, [1.0, 0.0, 1.0]);
 
     mat4.identity(normalMatrix);
-    mat4.multiply(normalMatrix,viewMatrix,modelMatrix);
-    mat4.invert(normalMatrix,normalMatrix);
-    mat4.transpose(normalMatrix,normalMatrix);
+    mat4.multiply(normalMatrix, viewMatrix, modelMatrix);
+    mat4.invert(normalMatrix, normalMatrix);
+    mat4.transpose(normalMatrix, normalMatrix);
 
 }
 
 function tick(){
     requestAnimationFrame(tick);
-    controller.tick();
+    helicopter.tick();
     drawScene();
     animate();
 }

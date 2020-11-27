@@ -16,6 +16,10 @@ class Controller{
                 this.helicopterController.pitch];
     }
 
+    getHelicopterSpeed(){
+        return this.helicopterController.speed;
+    }
+
     getCameraPosition(){
         return this.cameraController.getPosition(this.getHelicopterPosition());
     }

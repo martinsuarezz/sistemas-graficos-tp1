@@ -7,11 +7,14 @@ class Objeto3D{
         this.webGL_vertexBuffer = null;
         this.webGL_indexBuffer = null;
         this.webGL_normalBuffer = null;
-        this.webGL_vertexAttribute
+        this.webGL_vertexAttribute = null;
 
         this.matrizModelado = mat4.create();
 
         this.posicion = vec3.create();
+        this.rotations = [[0, [1, 0, 0]],
+                          [0, [0, 1, 0]],
+                          [0, [0, 0, 1]]];
         this.rotationX = 0;
         this.rotationY = 0;
         this.rotationZ = 0;
@@ -39,10 +42,16 @@ class Objeto3D{
 
     actualizarMatrizModelado(){
         this.matrizModelado = mat4.create();
+    
         mat4.translate(this.matrizModelado, this.matrizModelado, this.posicion);
+        for (let i = 0; i < this.rotations.length; i++){
+            mat4.rotate(this.matrizModelado, this.matrizModelado, this.rotations[i][0], this.rotations[i][1]);
+        }
+        /*
         mat4.rotate(this.matrizModelado, this.matrizModelado, this.rotationX, [1, 0, 0]);
         mat4.rotate(this.matrizModelado, this.matrizModelado, this.rotationY, [0, 1, 0]);
         mat4.rotate(this.matrizModelado, this.matrizModelado, this.rotationZ, [0, 0, 1]);
+        */
         mat4.scale(this.matrizModelado, this.matrizModelado, this.escala);
     }
 
@@ -51,10 +60,10 @@ class Objeto3D{
         var matriz = mat4.create();
         if (!matrizPadre)
             var matrizPadre = mat4.create();
-        mat4.multiply(matriz, matrizPadre, this.matrizModelado);
+        mat4.multiply(this.matrizModelado, matrizPadre, this.matrizModelado);
 
         var modelMatrixUniform = gl.getUniformLocation(glProgram, "modelMatrix");
-        gl.uniformMatrix4fv(modelMatrixUniform, false, matriz);
+        gl.uniformMatrix4fv(modelMatrixUniform, false, this.matrizModelado);
 
         if (this.vertexBuffer && this.indexBuffer){
             let vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
@@ -72,7 +81,7 @@ class Objeto3D{
         }
         
         for (var i = 0; i < this.hijos.length; i++)
-            this.hijos[i].draw(matriz);
+            this.hijos[i].draw(this.matrizModelado);
     }
 
     setGeometry(vertexBuffer, indexBuffer, normalBuffer){
@@ -95,6 +104,18 @@ class Objeto3D{
         this.posicion = vec3.fromValues(x,y,z);
     }
 
+    setFirstRotation(angle, axis){
+        this.rotations[0] = [angle, axis];
+    }
+
+    setSecondRotation(angle, axis){
+        this.rotations[1] = [angle, axis];
+    }
+
+    setThirdRotation(angle, axis){
+        this.rotations[2] = [angle, axis];
+    }
+
     setRotation(x, y, z){
         this.rotationX = x;
         this.rotationY = y;
@@ -106,5 +127,9 @@ class Objeto3D{
             this.escala = vec3.fromValues(x,x,x);
         else
             this.escala = vec3.fromValues(x,y,z);
+    }
+
+    getModelMatrix(){
+        return this.matrizModelado;
     }
 }
