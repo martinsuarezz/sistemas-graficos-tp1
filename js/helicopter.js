@@ -1,6 +1,8 @@
 class Helicopter extends Objeto3D{
     constructor(){
         super();
+        this.topArmPitch = 0.5;
+
         let cabin = new Cabin();
         let skidLeft = new Skid();
         let skidRight = new Skid();
@@ -22,7 +24,7 @@ class Helicopter extends Objeto3D{
         this.addChild(skidLeft);
         this.addChild(skidRight);
 
-        this.controller = new Controller();
+        this.controller = new HelicopterController();
     }
 
     setRotationAngles(roll, angle, pitch){
@@ -31,15 +33,31 @@ class Helicopter extends Objeto3D{
         this.setThirdRotation(pitch, [0, 0, 1]);
     }
 
-    setRotorSpeed(speed){
-        this.arm1.setRotorSpeed(speed);
-        this.arm2.setRotorSpeed(speed);
+    setArmsSpeed(speed, time){
+        this.arm1.setRotorSpeed(speed, time);
+        this.arm2.setRotorSpeed(speed, time);
+        let armPitch = speed * 2;
+        if (armPitch > this.topArmPitch)
+            armPitch = this.topArmPitch;
+        if (armPitch < -this.topArmPitch)
+            armPitch = -this.topArmPitch;
+        this.arm1.setFirstRotation(-armPitch, [0, 0, 1]);
+        this.arm2.setSecondRotation(armPitch, [0, 0, 1]);
+    }
+
+    actualizarMatricesModeladoHijos(){
+        for (let i = 0; i < this.hijos.length; i++){
+            this.hijos[i].actualizarMatrizModelado(this.matrizModelado);
+        }
     }
     
     tick(time){
         this.controller.tick();
-        this.setPosition(...this.controller.getHelicopterPosition());
-        //this.setRotationAngles(...this.controller.getHelicopterRotation());
+        this.setPosition(...this.controller.getPosition());
+        this.setRotationAngles(...this.controller.getRotation());
+        this.actualizarMatrizModelado();
+        this.actualizarMatricesModeladoHijos();
+        this.setArmsSpeed(this.controller.getSpeed(), time);
     }
 
 }

@@ -1,7 +1,7 @@
 class Controller{
     constructor(){
         this.helicopterController = new HelicopterController();
-        this.cameraController = new CameraController();
+        //this.cameraController = new CameraController();
     }
 
     getHelicopterPosition(){

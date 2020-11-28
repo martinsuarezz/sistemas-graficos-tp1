@@ -40,7 +40,7 @@ class Objeto3D{
         }
     }
 
-    actualizarMatrizModelado(){
+    actualizarMatrizModelado(matrizPadre){
         this.matrizModelado = mat4.create();
     
         mat4.translate(this.matrizModelado, this.matrizModelado, this.posicion);
@@ -53,6 +53,8 @@ class Objeto3D{
         mat4.rotate(this.matrizModelado, this.matrizModelado, this.rotationZ, [0, 0, 1]);
         */
         mat4.scale(this.matrizModelado, this.matrizModelado, this.escala);
+        if (matrizPadre)
+            mat4.multiply(this.matrizModelado, matrizPadre, this.matrizModelado);
     }
 
     draw(matrizPadre){

@@ -143,7 +143,7 @@ class Terrain{
         
         //gl.uniform1i(glProgram.useLightingUniform,(lighting=="true"));                    
         gl.drawElements(gl.TRIANGLES, this.webgl_index_buffer.numItems, gl.UNSIGNED_SHORT, 0);
-        
+                
         gl.useProgram(glProgram);
         /*
         if (modo!="smooth") {

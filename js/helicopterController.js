@@ -31,6 +31,8 @@ class HelicopterController{
         this.altitudeTarget=this.minAltitude;
         this.speedTarget=0;
 
+        this.topPitch = 0.3;
+
         var scene = document.getElementById('my-canvas');
         scene.addEventListener('keydown', e => {
             this.handleDownKey(e.key);
@@ -47,6 +49,10 @@ class HelicopterController{
 
     getRotation(){
         return [this.roll, this.angle, this.pitch];
+    }
+
+    getSpeed(){
+        return this.speedTarget;
     }
 
     handleDownKey(key){
@@ -111,7 +117,7 @@ class HelicopterController{
         }
         
         this.roll =- (this.angleTarget - this.angle) * 0.4;
-        this.pitch =- Math.max(-0.5,Math.min(0.5,this.speed));
+        this.pitch =- Math.max(-this.topPitch, Math.min(this.topPitch, this.speed));
 
         this.speed += (this.speedTarget - this.speed) * this.speedInertia;
         this.altitude += (this.altitudeTarget - this.altitude) * this.altitudeInertia;

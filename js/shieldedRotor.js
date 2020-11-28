@@ -9,9 +9,13 @@ class ShieldedRotor extends Objeto3D{
 
         this.addChild(this.rotor);
         this.addChild(shield);
+
+        this.rotationAngle = 0;
     }
 
-    setRotorSpeed(speed){
-        this.rotor.setFirstRotation(speed, [0, 1, 0]);
+    setRotorSpeed(speed, time){
+        this.rotationAngle += time * 4;
+        this.rotationAngle += Math.abs(speed) * time * 5;
+        this.rotor.setFirstRotation(this.rotationAngle, [0, 1, 0]);
     }
 }

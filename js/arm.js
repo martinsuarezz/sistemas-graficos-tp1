@@ -12,7 +12,7 @@ class Arm extends Objeto3D{
         this.addChild(bar);
     }
 
-    setRotorSpeed(speed){
-        this.shieldedRotor.setRotorSpeed(speed);
+    setRotorSpeed(speed, time){
+        this.shieldedRotor.setRotorSpeed(speed, time);
     }
 }
