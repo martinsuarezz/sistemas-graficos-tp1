@@ -58,14 +58,37 @@ class HelicopterController{
     getSpeed(){
         return this.speedTarget;
     }
+    /*
+    handleGamma(gamma){
+        if (gamma > -75)
+            this.zArrow = -1;
+        else if (gamma < - 105)
+            this.zArrow = 1;
+        else
+            this.zArrow = 0;
+    }
+    */
+    handleGamma(gamma){
+        if (gamma > -30)
+            this.xArrow = 1;
+        else if (gamma < -65)
+            this.xArrow = -1;
+        else
+            this.xArrow = 0;
+    }
+
+    handleBeta(beta){
+        if (beta < -15)
+            this.zArrow = 1;
+        else if (beta > 15)
+            this.zArrow = -1;
+        else
+            this.zArrow = 0;
+    }
 
     handleOrientation(e){
-        if (e.alpha < 30){
-            this.zArrow = 1;
-        }
-        if (e.alpha > 330){
-            this.zArrow = -1;
-        }
+        this.handleGamma(e.gamma);
+        this.handleBeta(e.beta);
     }
 
     handleDownKey(key){
