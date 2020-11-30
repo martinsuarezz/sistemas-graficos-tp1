@@ -179,5 +179,7 @@ class SweptSurface{
             this.indexBuffer.push(getIndex(n + 1, points - 1, points));
             this.indexBuffer.push(getIndex(n + 1, 0, points));
         }
+        for (let i = 0; i < 3; i++)
+            this.indexBuffer.pop();
     }
 }

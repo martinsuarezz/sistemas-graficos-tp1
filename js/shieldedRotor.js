@@ -6,6 +6,7 @@ class ShieldedRotor extends Objeto3D{
 
         shield.setScale(0.6);
         shield.setPosition(0, -0.5, 0);
+        shield.setColor([0.82, 0, 0]);
 
         this.addChild(this.rotor);
         this.addChild(shield);

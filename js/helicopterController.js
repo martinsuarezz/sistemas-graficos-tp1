@@ -41,6 +41,10 @@ class HelicopterController{
         scene.addEventListener('keyup', e => {
             this.handleUpKey(e.key);
         });
+
+        window.addEventListener('deviceorientation', e => {
+            this.handleOrientation(e);
+        });
     }
 
     getPosition(){
@@ -53,6 +57,15 @@ class HelicopterController{
 
     getSpeed(){
         return this.speedTarget;
+    }
+
+    handleOrientation(e){
+        if (e.alpha < 30){
+            this.zArrow = 1;
+        }
+        if (e.alpha > 330){
+            this.zArrow = -1;
+        }
     }
 
     handleDownKey(key){

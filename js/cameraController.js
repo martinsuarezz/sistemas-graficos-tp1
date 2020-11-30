@@ -91,16 +91,16 @@ class CameraController{
 
     setupCameras(){
         this.rearCamera = new Camera(false);
-        this.rearCamera.setPosition(-20, 20, 0);
+        this.rearCamera.setPosition(-24, 24, 0);
 
         this.rearCameraN = new Camera(false);
-        this.rearCameraN.setPosition(-20, 23, 0);
+        this.rearCameraN.setPosition(-24, 27, 0);
 
         this.lateralCamera = new Camera(false);
-        this.lateralCamera.setPosition(0, 0, 22);
+        this.lateralCamera.setPosition(0, 0, 28);
 
         this.lateralCameraN = new Camera(false);
-        this.lateralCameraN.setPosition(0, 3, 22);
+        this.lateralCameraN.setPosition(0, 3, 28);
 
         this.upperCamera = new Camera(false);
         this.upperCamera.setPosition(0, 36, 0);
@@ -109,13 +109,13 @@ class CameraController{
         this.upperCameraN.setPosition(1, 36, 0);
 
         this.frontCamera = new Camera(false);
-        this.frontCamera.setPosition(11, 0, 0);
+        this.frontCamera.setPosition(13, 0, 0);
 
         this.frontCameraN = new Camera(false);
-        this.frontCameraN.setPosition(11, 3, 0);
+        this.frontCameraN.setPosition(13, 3, 0);
 
         this.frontCameraT = new Camera(false);
-        this.frontCameraT.setPosition(14, 0, 0);
+        this.frontCameraT.setPosition(18, 0, 0);
         
         this.target.addChild(this.rearCamera);
         this.target.addChild(this.rearCameraN);

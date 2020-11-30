@@ -1,9 +1,11 @@
 class Terrain{
-    constructor(size, latitudeBands, longitudeBands){
+    constructor(size, plotsShown, plotsAmmount, latitudeBands, longitudeBands){
     
         this.latitudeBands = latitudeBands;
         this.longitudeBands = longitudeBands;
         this.size = size;
+        this.plotsShown = plotsShown;
+        this.plotsAmmount = plotsAmmount;
         
         this.position_buffer = null;
         this.normal_buffer = null;
@@ -16,6 +18,10 @@ class Terrain{
         this.webgl_index_buffer = null;
         
         this.texture = null;
+        this.positionX = 0;
+        this.positionY = 0;
+
+        this.modelMatrix = mat4.create();
     }
 
     initTexture(textureFile){
@@ -67,7 +73,19 @@ class Terrain{
 
         // Buffer de indices de los triangulos
         this.index_buffer = [];
-        
+        let columns = this.longitudeBands;
+        let rows = this.longitudeBands;
+        function getIndex(i,j){return i * (columns + 1) + j;}
+
+        for (let i=0; i < rows; i++) {
+            for (let j=0; j <= columns; j++) {
+                this.index_buffer.push(getIndex(i, j));
+                this.index_buffer.push(getIndex(i + 1, j));            
+            }
+            this.index_buffer.push(getIndex(i + 1, columns));
+            this.index_buffer.push(getIndex(i + 1, 0));
+        }
+        /*
         for (latNumber=0; latNumber < this.latitudeBands; latNumber++) {
             for (longNumber=0; longNumber < this.longitudeBands; longNumber++) {
 
@@ -83,7 +101,7 @@ class Terrain{
                 this.index_buffer.push(first + 1);
             }
         }
-
+        */
         // Creación e Inicialización de los buffers a nivel de OpenGL
         gl.useProgram(glProgram2);
         this.webgl_normal_buffer = gl.createBuffer();
@@ -110,47 +128,82 @@ class Terrain{
         this.webgl_index_buffer.itemSize = 1;
         this.webgl_index_buffer.numItems = this.index_buffer.length;
         gl.useProgram(glProgram);
-
-        
     }
 
-    draw(){
+    updatePosition(helicopterPosition, xPlotOffset, zPlotOffset){
+        let xShift = (Math.floor(helicopterPosition[0] / this.size + 0.5) + xPlotOffset) * this.size;
+        let zShift = (Math.floor(helicopterPosition[2] / this.size + 0.5) + zPlotOffset) * this.size;
+
+        this.modelMatrix = mat4.create();
+        mat4.translate(this.modelMatrix, this.modelMatrix, [xShift, 0, zShift]);
+    }
+
+    getCoordinates(helicopterPosition, xPlotOffset, zPlotOffset){
+        let totalSize = this.size * this.plotsAmmount;
+        let xPos = helicopterPosition[0] % totalSize;
+        if (xPos < 0)
+            xPos = totalSize + xPos;
+        let xCoord = (Math.floor(xPos / this.size + 0.5) + xPlotOffset) % this.plotsAmmount;
+
+        let zPos = helicopterPosition[2] % totalSize;
+        if (zPos < 0)
+            zPos = totalSize + zPos;
+        let zCoord = (Math.floor(zPos / this.size + 0.5) + zPlotOffset) % this.plotsAmmount;
+        
+        return [xCoord, zCoord];
+    }
+
+    draw(helicopterPosition){
+        let topOffset = Math.floor(this.plotsShown / 2);
         gl.useProgram(glProgram2);
+        for (let i = -topOffset; i <= topOffset; i++){
+            for (let j = -topOffset; j <= topOffset; j++){
+                this.updatePosition(helicopterPosition, i, j);
+                let coords = this.getCoordinates(helicopterPosition, i, j);
 
-        var samplerUniform = gl.getUniformLocation(glProgram2, "uSampler");
+                var modelMatrixUniform = gl.getUniformLocation(glProgram2, "modelMatrix");
+                gl.uniformMatrix4fv(modelMatrixUniform, false, this.modelMatrix);
 
-        var vertexPositionAttribute = gl.getAttribLocation(glProgram2, "aPosition");
-        gl.enableVertexAttribArray(vertexPositionAttribute);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_position_buffer);
-        gl.vertexAttribPointer(vertexPositionAttribute, this.webgl_position_buffer.itemSize, gl.FLOAT, false, 0, 0);
+                var heliPosition = gl.getUniformLocation(glProgram2, "helicopterCoords");
+                gl.uniform2fv(heliPosition, coords);
 
-        var textureCoordAttribute = gl.getAttribLocation(glProgram2, "aUv");
-        gl.enableVertexAttribArray(textureCoordAttribute);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_texture_coord_buffer);
-        gl.vertexAttribPointer(textureCoordAttribute, this.webgl_texture_coord_buffer.itemSize, gl.FLOAT, false, 0, 0);
+                var samplerUniform = gl.getUniformLocation(glProgram2, "uSampler");
 
-        /* NO USO LAS NORMALES, OPTIMIZACION
-        var vertexNormalAttribute = gl.getAttribLocation(glProgram2, "aNormal");
-        gl.enableVertexAttribArray(vertexNormalAttribute);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_normal_buffer);
-        gl.vertexAttribPointer(vertexNormalAttribute, this.webgl_normal_buffer.itemSize, gl.FLOAT, false, 0, 0);
-        */
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.texture);
-        gl.uniform1i(samplerUniform, 0);
-        
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.webgl_index_buffer);
-        
-        //gl.uniform1i(glProgram.useLightingUniform,(lighting=="true"));                    
-        gl.drawElements(gl.TRIANGLES, this.webgl_index_buffer.numItems, gl.UNSIGNED_SHORT, 0);
+                var vertexPositionAttribute = gl.getAttribLocation(glProgram2, "aPosition");
+                gl.enableVertexAttribArray(vertexPositionAttribute);
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_position_buffer);
+                gl.vertexAttribPointer(vertexPositionAttribute, this.webgl_position_buffer.itemSize, gl.FLOAT, false, 0, 0);
+
+                var textureCoordAttribute = gl.getAttribLocation(glProgram2, "aUv");
+                gl.enableVertexAttribArray(textureCoordAttribute);
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_texture_coord_buffer);
+                gl.vertexAttribPointer(textureCoordAttribute, this.webgl_texture_coord_buffer.itemSize, gl.FLOAT, false, 0, 0);
+
+                /* NO USO LAS NORMALES, OPTIMIZACION
+                var vertexNormalAttribute = gl.getAttribLocation(glProgram2, "aNormal");
+                gl.enableVertexAttribArray(vertexNormalAttribute);
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.webgl_normal_buffer);
+                gl.vertexAttribPointer(vertexNormalAttribute, this.webgl_normal_buffer.itemSize, gl.FLOAT, false, 0, 0);
+                */
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, this.texture);
+                gl.uniform1i(samplerUniform, 0);
                 
-        gl.useProgram(glProgram);
-        /*
-        if (modo!="smooth") {
-            gl.uniform1i(shaderProgram.useLightingUniform,false);
-            gl.drawElements(gl.LINE_STRIP, this.webgl_index_buffer.numItems, gl.UNSIGNED_SHORT, 0);
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.webgl_index_buffer);
+                
+                //gl.uniform1i(glProgram.useLightingUniform,(lighting=="true"));                    
+                gl.drawElements(gl.TRIANGLE_STRIP, this.webgl_index_buffer.numItems, gl.UNSIGNED_SHORT, 0);
+                //gl.drawElements(gl.LINE_STRIP, this.webgl_index_buffer.numItems, gl.UNSIGNED_SHORT, 0);
+                        
+                
+                /*
+                if (modo!="smooth") {
+                    gl.uniform1i(shaderProgram.useLightingUniform,false);
+                    gl.drawElements(gl.LINE_STRIP, this.webgl_index_buffer.numItems, gl.UNSIGNED_SHORT, 0);
+                }
+                */
+            }
         }
-        */
+        gl.useProgram(glProgram);
     }
-
 }

@@ -13,6 +13,7 @@ class Rotor extends Objeto3D{
             blade.setFirstRotation(Math.PI/2, [1, 0, 0]);
             blade.setSecondRotation(i * 2 * Math.PI / bladesAmmount, [0, 0, 1]);
             blade.setThirdRotation(Math.PI/4, [0, 1, 0]);
+            blade.setColor([0.6, 0.6, 0.6]);
             this.addChild(blade);
         }
 

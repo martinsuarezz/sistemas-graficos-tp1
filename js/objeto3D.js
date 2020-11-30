@@ -21,17 +21,21 @@ class Objeto3D{
         this.escala = vec3.fromValues(1,1,1);
 
         this.hijos = [];
+        this.color = [1, 1, 1];
     }
 
     initializeBuffers(){
         this.webGL_vertexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.webGL_vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertexBuffer), gl.STATIC_DRAW);
+        this.webGL_vertexBuffer.itemSize = 3;
+        this.webGL_vertexBuffer.numItems = this.vertexBuffer.length / 3;
 
         this.webGL_indexBuffer = gl.createBuffer();
-        this.webGL_indexBuffer.number_vertex_point = this.indexBuffer.length;
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.webGL_indexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indexBuffer), gl.STATIC_DRAW);
+        this.webGL_indexBuffer.itemSize = 1;
+        this.webGL_indexBuffer.number_vertex_point = this.indexBuffer.length;
 
         if (this.normalBuffer){
             this.webGL_normalBuffer = gl.createBuffer();
@@ -67,11 +71,14 @@ class Objeto3D{
         var modelMatrixUniform = gl.getUniformLocation(glProgram, "modelMatrix");
         gl.uniformMatrix4fv(modelMatrixUniform, false, this.matrizModelado);
 
+        var objColor = gl.getUniformLocation(glProgram, "objColor");
+        gl.uniform3fv(objColor, this.color);
+
         if (this.vertexBuffer && this.indexBuffer){
             let vertexPositionAttribute = gl.getAttribLocation(glProgram, "aVertexPosition");
             gl.enableVertexAttribArray(vertexPositionAttribute);
             gl.bindBuffer(gl.ARRAY_BUFFER, this.webGL_vertexBuffer);
-            gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+            gl.vertexAttribPointer(vertexPositionAttribute, this.webGL_vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
             let vertexNormalAttribute = gl.getAttribLocation(glProgram, "aVertexNormal");
             gl.enableVertexAttribArray(vertexNormalAttribute);
@@ -131,7 +138,17 @@ class Objeto3D{
             this.escala = vec3.fromValues(x,y,z);
     }
 
+    setColor(newColor){
+        this.color = newColor;
+    }
+
     getModelMatrix(){
         return this.matrizModelado;
+    }
+
+    getPosition(){
+        let pos = [0, 0, 0, 1];
+        vec4.transformMat4(pos, pos, this.getModelMatrix());
+        return pos;
     }
 }

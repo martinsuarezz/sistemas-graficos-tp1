@@ -23,10 +23,18 @@ var projMatrix = mat4.create();
 var normalMatrix = mat4.create();
 var rotate_angle = -1.57078;
 
+var xElement, yElement, zElement,
+    speedElement;
+
+var xNode, yNode, zNode, speedNode;
+
 //var cabin = new Cabin();
 //var bar = new Cylinder();
 var skid1, cabin, helicopter, aux, camera;
 //var controller = new Controller();
+var plotSize = 400;
+var plotsAmmount = 8;
+var plotsShown = 3;
 var time = 0;
 var deltaTime = 1/60;
 
@@ -44,6 +52,7 @@ function initWebGL(){
 
         setupWebGL();
         initShaders();
+        initScreenText();
         createObjects();
         setupVertexShaderMatrix();
         tick();   
@@ -54,6 +63,24 @@ function initWebGL(){
 
 }
 
+function initScreenText(){
+    xElement = document.querySelector("#xPos");
+    yElement = document.querySelector("#yPos");
+    zElement = document.querySelector("#zPos");
+    speedElement = document.querySelector("#speed");
+ 
+    // Create text nodes to save some time for the browser.
+    xNode = document.createTextNode("");
+    yNode = document.createTextNode("");
+    zNode = document.createTextNode("");
+    speedNode = document.createTextNode("");
+    
+    // Add those text nodes where they need to go
+    xElement.appendChild(xNode);
+    yElement.appendChild(yNode);
+    zElement.appendChild(zNode);
+    speedElement.appendChild(speedNode);
+}
 
 function setupWebGL(){
     gl.enable(gl.DEPTH_TEST);
@@ -74,7 +101,6 @@ function setupWebGL(){
     //mat4.translate(viewMatrix,viewMatrix, [0.0, 0.0, -5.0]);
     
 }
-        
         
 function initShaders() {
     //get shader source
@@ -133,8 +159,8 @@ function createObjects(){
     cabin = new Cabin();
     helicopter = new Helicopter();
     camera = new CameraController(helicopter);
-    terrain = new Terrain(100, 200, 200);
-    terrain.initTexture("img/heightmap3.png");
+    terrain = new Terrain(plotSize, plotsShown, plotsAmmount, 225, 225);
+    terrain.initTexture("img/heightmap4.png");
     terrain.initBuffers();
 }
 
@@ -152,12 +178,12 @@ function setupVertexShaderMatrix(){
 
     gl.useProgram(glProgram2);
 
-    var modelMatrixUniform = gl.getUniformLocation(glProgram2, "modelMatrix");
+    //var modelMatrixUniform = gl.getUniformLocation(glProgram2, "modelMatrix");
     var viewMatrixUniform2  = gl.getUniformLocation(glProgram2, "viewMatrix");
     var projMatrixUniform2  = gl.getUniformLocation(glProgram2, "projMatrix");
     var normalMatrixUniform2 = gl.getUniformLocation(glProgram2, "normalMatrix");
 
-    gl.uniformMatrix4fv(modelMatrixUniform, false, modelMatrix);
+    //gl.uniformMatrix4fv(modelMatrixUniform, false, modelMatrix);
     gl.uniformMatrix4fv(viewMatrixUniform2, false, viewMatrix);
     gl.uniformMatrix4fv(projMatrixUniform2, false, projMatrix);
     gl.uniformMatrix4fv(normalMatrixUniform2, false, normalMatrix);
@@ -166,10 +192,18 @@ function setupVertexShaderMatrix(){
 }                  
 
 function drawScene(){
-    helicopter.setScale(0.3);
+    helicopter.setScale(0.05);
 
     helicopter.draw();
-    terrain.draw();
+    let helicopterPosition = helicopter.getPosition();
+    let helicopterSpeed = helicopter.getSpeed();
+
+    xNode.nodeValue = helicopterPosition[0].toFixed(2);
+    yNode.nodeValue = helicopterPosition[1].toFixed(0);
+    zNode.nodeValue = helicopterPosition[2].toFixed(2);
+    speedNode.nodeValue = ((helicopterSpeed * 216).toFixed(2)).toString() + " km/h";
+
+    terrain.draw(helicopterPosition);
 }
 
 function animate(){
