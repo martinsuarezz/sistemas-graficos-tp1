@@ -9,18 +9,18 @@ class HelicopterController{
         this.zArrow = 0;
 
         this.altitudeInertia=0.01;
-        this.speedInertia=0.1;
+        this.speedInertia=0.1;//0.1
         this.angleInertia=0.02;
     
         this.deltaAltitude=1;
         this.deltaSpeed=0.01;
         this.deltaAngle=0.03;
     
-        this.maxSpeed=2;
-        this.maxAltitude=300;
+        this.maxSpeed=4;
+        this.maxAltitude=400;
         this.minAltitude=1;
     
-        this.speed = 0;
+        this.speed=0;
         this.altitude=this.minAltitude;
         this.angle=0;
     
@@ -41,10 +41,13 @@ class HelicopterController{
         scene.addEventListener('keyup', e => {
             this.handleUpKey(e.key);
         });
-
-        window.addEventListener('deviceorientation', e => {
-            this.handleOrientation(e);
-        });
+        
+        if (isMobile){
+            window.addEventListener('deviceorientation', e => {
+                this.handleOrientation(e);
+            });
+        }
+        
     }
 
     getPosition(){
@@ -56,7 +59,15 @@ class HelicopterController{
     }
 
     getSpeed(){
-        return this.speedTarget;
+        return this.speed;
+    }
+
+    getAcceleration(){
+        return this.speedTarget - this.speed;
+    }
+
+    getAngularAcceleration(){
+        return this.angleTarget - this.angle;
     }
     /*
     handleGamma(gamma){

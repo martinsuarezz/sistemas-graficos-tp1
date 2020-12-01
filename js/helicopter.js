@@ -10,6 +10,7 @@ class Helicopter extends Objeto3D{
         this.arm2 = new Arm();
         this.arm3 = new Arm();
         this.arm4 = new Arm();
+        this.tail = new Tail();
 
         cabin.setScale(1.8, 2.2, 1.4);
         skidLeft.setPosition(0, -2.5, 3);
@@ -25,6 +26,7 @@ class Helicopter extends Objeto3D{
         this.arm4.setScale(0.5);
         this.arm4.setFirstRotation(Math.PI, [0, 1, 0]);
         this.arm4.setPosition(3.25, 3, 8);
+        this.tail.setPosition(-15, 3.5, 0);
         this.addChild(this.arm1);
         this.addChild(this.arm2);
         this.addChild(this.arm3);
@@ -32,6 +34,7 @@ class Helicopter extends Objeto3D{
         this.addChild(cabin);
         this.addChild(skidLeft);
         this.addChild(skidRight);
+        this.addChild(this.tail);
 
         this.controller = new HelicopterController();
     }
@@ -42,12 +45,13 @@ class Helicopter extends Objeto3D{
         this.setThirdRotation(pitch, [0, 0, 1]);
     }
 
-    setArmsSpeed(speed, time){
-        this.arm1.setRotorSpeed(speed, time);
-        this.arm2.setRotorSpeed(speed, time);
-        this.arm3.setRotorSpeed(speed, time);
-        this.arm4.setRotorSpeed(speed, time);
-        let armPitch = speed * 2;
+    setArmsSpeed(acceleration, speed, time){
+        let rotorSpeed = speed / 2 + acceleration * 5;
+        this.arm1.setRotorSpeed(rotorSpeed, time);
+        this.arm2.setRotorSpeed(rotorSpeed, time);
+        this.arm3.setRotorSpeed(rotorSpeed, time);
+        this.arm4.setRotorSpeed(rotorSpeed, time);
+        let armPitch = acceleration * 3;
         if (armPitch > this.topArmPitch)
             armPitch = this.topArmPitch;
         if (armPitch < -this.topArmPitch)
@@ -56,6 +60,10 @@ class Helicopter extends Objeto3D{
         this.arm2.setSecondRotation(armPitch, [0, 0, 1]);
         this.arm3.setFirstRotation(-armPitch, [0, 0, 1]);
         this.arm4.setSecondRotation(armPitch, [0, 0, 1]);
+    }
+
+    setTailAngle(angle){
+        this.tail.setFlapsAngle(angle);
     }
 
     getSpeed(){
@@ -74,7 +82,8 @@ class Helicopter extends Objeto3D{
         this.setRotationAngles(...this.controller.getRotation());
         this.actualizarMatrizModelado();
         this.actualizarMatricesModeladoHijos();
-        this.setArmsSpeed(this.controller.getSpeed(), time);
+        this.setArmsSpeed(this.controller.getAcceleration(), this.controller.getSpeed(), time);
+        this.setTailAngle(-this.controller.getAngularAcceleration());
     }
 
 }

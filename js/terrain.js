@@ -21,6 +21,8 @@ class Terrain{
         this.positionX = 0;
         this.positionY = 0;
 
+        this.lightVector = [1, -1, 1];
+
         this.modelMatrix = mat4.create();
     }
 
@@ -164,8 +166,11 @@ class Terrain{
                 var modelMatrixUniform = gl.getUniformLocation(glProgram2, "modelMatrix");
                 gl.uniformMatrix4fv(modelMatrixUniform, false, this.modelMatrix);
 
-                var heliPosition = gl.getUniformLocation(glProgram2, "helicopterCoords");
-                gl.uniform2fv(heliPosition, coords);
+                var lightVectorUniform = gl.getUniformLocation(glProgram2, "lightVector");
+                gl.uniform3fv(lightVectorUniform, this.lightVector);
+
+                var heliPositionUniform = gl.getUniformLocation(glProgram2, "helicopterCoords");
+                gl.uniform2fv(heliPositionUniform, coords);
 
                 var samplerUniform = gl.getUniformLocation(glProgram2, "uSampler");
 
