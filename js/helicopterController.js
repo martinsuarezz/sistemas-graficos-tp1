@@ -18,7 +18,7 @@ class HelicopterController{
     
         this.maxSpeed=4;
         this.maxAltitude=400;
-        this.minAltitude=1;
+        this.minAltitude=65.35;
     
         this.speed=0;
         this.altitude=this.minAltitude;
@@ -48,6 +48,10 @@ class HelicopterController{
             });
         }
         
+    }
+
+    getHeight(){
+        return this.positionY - this.minAltitude;
     }
 
     getPosition(){

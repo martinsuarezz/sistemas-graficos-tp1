@@ -70,6 +70,10 @@ class Helicopter extends Objeto3D{
         return this.controller.getSpeed();
     }
 
+    getHeight(){
+        return this.controller.getHeight();
+    }
+
     actualizarMatricesModeladoHijos(){
         for (let i = 0; i < this.hijos.length; i++){
             this.hijos[i].actualizarMatrizModelado(this.matrizModelado);

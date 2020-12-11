@@ -72,21 +72,18 @@ function initScreenText(){
     yElement = document.querySelector("#yPos");
     zElement = document.querySelector("#zPos");
     speedElement = document.querySelector("#speed");
-    frameTime = document.querySelector("#frameTime");
  
     // Create text nodes to save some time for the browser.
     xNode = document.createTextNode("");
     yNode = document.createTextNode("");
     zNode = document.createTextNode("");
     speedNode = document.createTextNode("");
-    frameNode = document.createTextNode("");
     
     // Add those text nodes where they need to go
     xElement.appendChild(xNode);
     yElement.appendChild(yNode);
     zElement.appendChild(zNode);
     speedElement.appendChild(speedNode);
-    frameTime.appendChild(frameNode);
 }
 
 function setupWebGL(){
@@ -99,7 +96,7 @@ function setupWebGL(){
 
     // Matrix de Proyeccion Perspectiva
 
-    mat4.perspective(projMatrix, 45, canvas.width / canvas.height, 0.1, null); // 1200
+    mat4.perspective(projMatrix, 45, canvas.width / canvas.height, 0.1, 1100); // 1200
     mat4.identity(modelMatrix);
     mat4.rotate(modelMatrix,modelMatrix, -1.57078, [1.0, 0.0, 0.0]);
 
@@ -200,14 +197,16 @@ function setupVertexShaderMatrix(){
 
 function drawScene(){
     helicopter.setScale(0.05);
-    pad.setPosition(0, 10, 0);
+    pad.setPosition(0, 63, -2);
+    pad.setScale(1, 1, 2);
 
     helicopter.draw();
     let helicopterPosition = helicopter.getPosition();
+    let helicopterHeight = helicopter.getHeight();
     let helicopterSpeed = helicopter.getSpeed();
 
     xNode.nodeValue = helicopterPosition[0].toFixed(2);
-    yNode.nodeValue = helicopterPosition[1].toFixed(0);
+    yNode.nodeValue = helicopterHeight.toFixed(0);
     zNode.nodeValue = helicopterPosition[2].toFixed(2);
     speedNode.nodeValue = ((helicopterSpeed * 1900).toFixed(0)).toString() + " km/h";
 
@@ -230,19 +229,11 @@ function animate(){
 }
 
 function tick(){
-    date1 = Date.now();
-    time += deltaTime;
     requestAnimationFrame(tick);
     helicopter.tick(deltaTime);
     animate();
     setupVertexShaderMatrix();
     drawScene();
-    date2 = Date.now() - date1;
-    if (date3 < date2 || true){
-        frameNode.nodeValue = date2;
-        date3 = date2;
-    }
-        
 }
 
 window.onload=initWebGL;
