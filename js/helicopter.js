@@ -17,15 +17,15 @@ class Helicopter extends Objeto3D{
         skidRight.setPosition(0, -2.5, -3);
         skidRight.setFirstRotation(Math.PI, [0, 1, 0]);
         this.arm1.setScale(0.5);
-        this.arm1.setPosition(-6.75, 3, -8);
+        this.arm1.setPosition(-6.75, 3, -6);
         this.arm2.setScale(0.5);
         this.arm2.setFirstRotation(Math.PI, [0, 1, 0]);
-        this.arm2.setPosition(-6.75, 3, 8);
+        this.arm2.setPosition(-6.75, 3, 6);
         this.arm3.setScale(0.5);
-        this.arm3.setPosition(3.25, 3, -8);
+        this.arm3.setPosition(3.25, 3, -6);
         this.arm4.setScale(0.5);
         this.arm4.setFirstRotation(Math.PI, [0, 1, 0]);
-        this.arm4.setPosition(3.25, 3, 8);
+        this.arm4.setPosition(3.25, 3, 6);
         this.tail.setPosition(-15, 3.5, 0);
         this.addChild(this.arm1);
         this.addChild(this.arm2);
@@ -66,6 +66,14 @@ class Helicopter extends Objeto3D{
         this.tail.setFlapsAngle(angle);
     }
 
+    setArmsAngle(angle){
+        angle = angle * 0.4;
+        this.arm1.setThirdRotation(Math.PI * angle, [1, 0, 0]);
+        this.arm2.setThirdRotation(Math.PI * angle, [1, 0, 0]);
+        this.arm3.setThirdRotation(Math.PI * angle, [1, 0, 0]);
+        this.arm4.setThirdRotation(Math.PI * angle, [1, 0, 0]);
+    }
+
     getSpeed(){
         return this.controller.getSpeed();
     }
@@ -88,6 +96,7 @@ class Helicopter extends Objeto3D{
         this.actualizarMatricesModeladoHijos();
         this.setArmsSpeed(this.controller.getAcceleration(), this.controller.getSpeed(), time);
         this.setTailAngle(-this.controller.getAngularAcceleration());
+        this.setArmsAngle(this.controller.getArmsAngle());
     }
 
 }

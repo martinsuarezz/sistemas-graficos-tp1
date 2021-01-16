@@ -31,6 +31,9 @@ class HelicopterController{
         this.altitudeTarget=this.minAltitude;
         this.speedTarget=0;
 
+        this.angleWingTarget = 0;
+        this.angleWing = 0;
+
         this.topPitch = 0.3;
 
         var scene = document.getElementById('my-canvas');
@@ -72,6 +75,10 @@ class HelicopterController{
 
     getAngularAcceleration(){
         return this.angleTarget - this.angle;
+    }
+
+    getArmsAngle(){
+        return this.angleWing;
     }
     /*
     handleGamma(gamma){
@@ -126,6 +133,12 @@ class HelicopterController{
             case "q":
                 this.yArrow=-1;
                 break;
+            case "h":
+                if (this.angleWingTarget == 0)
+                    this.angleWingTarget = 1;
+                else
+                    this.angleWingTarget = 0;
+                break;
         }
     }
 
@@ -173,6 +186,8 @@ class HelicopterController{
         this.speed += (this.speedTarget - this.speed) * this.speedInertia;
         this.altitude += (this.altitudeTarget - this.altitude) * this.altitudeInertia;
         this.angle += (this.angleTarget - this.angle) * this.angleInertia;
+
+        this.angleWing += (this.angleWingTarget - this.angleWing) * 0.075;
 
         var directionX=Math.cos(-this.angle) * this.speed;
         var directionZ=Math.sin(-this.angle) * this.speed;
